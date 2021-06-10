@@ -22,8 +22,15 @@ app.get('/', (req, res, next) => {
     res.send('ANJAYYYY');
 })
 
-const usersRoutes = require('./src/routes/users')
+const usersRoutes = require('./src/routes/usersRoute')
 app.use('/v1/users', usersRoutes);
+
+app.use((error, req, res, next) => {
+    const status = error.errorStatus || 500;
+    const message = error.message || "Ada yang error bro";
+    const data = error.data;
+    res.status(status).json({ message: message, data: data });
+});
 
 app.listen(port, () => {
     console.log(`Running at http://localhost:${port}`)
