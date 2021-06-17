@@ -54,8 +54,12 @@ app.get("/", (req, res, next) => {
 
 const usersRoutes = require("./src/routes/usersRoute");
 const articlesRoutes = require("./src/routes/articlesRoutes");
+const categoriesRoutes = require("./src/routes/categoriesRoutes");
+const subcategoriesRoutes = require("./src/routes/subcategoriesRoutes");
 app.use("/v1/users", usersRoutes);
 app.use("/v1/articles", articlesRoutes);
+app.use("/v1/categories", categoriesRoutes);
+app.use("/v1/subcategories", subcategoriesRoutes);
 
 app.use((error, req, res, next) => {
   const status = error.errorStatus || 500;

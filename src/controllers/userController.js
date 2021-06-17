@@ -12,7 +12,6 @@ exports.getAll = async (req, res, next) => {
     const users = await userModel.getAll(perPage, offset);
     console.log("users", users);
     res.status(200).json({
-      message: "Blogs successfully called",
       data: users[0],
       total_data: users[1],
       current_page: currentPage,
