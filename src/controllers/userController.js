@@ -1,12 +1,24 @@
 const { validationResult } = require("express-validator");
 const userModel = require("../models/userModel");
-const path = require('path');
-const fs = require('fs');
+const path = require("path");
+const fs = require("fs");
 
 exports.getAll = async (req, res, next) => {
   try {
-    const users = await userModel.getAll();
-    res.status(200).json(users);
+    console.log("req.query", req.query);
+    const currentPage = parseInt(req.query.page) || 1;
+    const perPage = parseInt(req.query.per_page) || 3;
+    const offset = (currentPage - 1) * perPage;
+    const users = await userModel.getAll(perPage, offset);
+    console.log("users", users);
+    res.status(200).json({
+      message: "Blogs successfully called",
+      data: users[0],
+      total_data: users[1],
+      current_page: currentPage,
+      per_page: perPage,
+    });
+    // res.status(200).json(users);
   } catch (error) {
     const err = new Error("error userController getAll : ");
     err.errorStatus = 501;
@@ -30,7 +42,7 @@ exports.getById = async (req, res, next) => {
 exports.create = async (req, res, next) => {
   const validation = validationResult(req);
   if (!validation.isEmpty()) {
-    console.log('validation', validation)
+    console.log("validation", validation);
     const err = new Error("Wrong Input valueeee");
     err.errorStatus = 400;
     err.data = validation.array();
@@ -48,7 +60,7 @@ exports.create = async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     image: req.file.path,
-  }
+  };
 
   try {
     const user = await userModel.create(data);
@@ -82,7 +94,7 @@ exports.update = async (req, res, next) => {
     await userModel
       .update(data, req.params.id)
       .then((result) => {
-        removeFile(user.image)
+        removeFile(user.image);
         res.status(200).json({
           message: "user updated successfully",
           data: result,
@@ -100,9 +112,6 @@ exports.update = async (req, res, next) => {
     err.data = error;
     throw next(err);
   }
-
-
-
 };
 
 exports.delete = async (req, res, next) => {
@@ -124,9 +133,12 @@ exports.delete = async (req, res, next) => {
 };
 
 const removeFile = (filePath) => {
-  filePath = path.join(__dirname, '../../', filePath);
-  if (fs.existsSync(filePath)) fs.unlink(filePath, err => console.log('error remove file userController', err))
-}
+  filePath = path.join(__dirname, "../../", filePath);
+  if (fs.existsSync(filePath))
+    fs.unlink(filePath, (err) =>
+      console.log("error remove file userController", err)
+    );
+};
 
 // exports.getAll = (req, res, next) => {
 //     userModel.getAll((error, results) => {

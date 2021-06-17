@@ -22,12 +22,23 @@ const connection = require("../config/database");
 //     })
 //   })
 // }
-exports.getAll = () => {
+exports.getAll = (limit, offset) => {
   return new Promise((resolve, reject) => {
-    connection.query("SELECT * FROM users", function (error, results) {
-      if (error) return reject(error);
-      return resolve(results);
-    });
+    connection.query(
+      "SELECT SQL_CALC_FOUND_ROWS * FROM users ORDER BY users.id DESC LIMIT ? OFFSET ?",
+      [limit, offset],
+      function (error, results) {
+        if (error) return reject(error);
+        const data = results;
+        connection.query(
+          "SELECT FOUND_ROWS() as total_data",
+          (error, results) => {
+            const total_data = results[0].total_data;
+            return resolve([data, total_data]);
+          }
+        );
+      }
+    );
   });
 };
 
